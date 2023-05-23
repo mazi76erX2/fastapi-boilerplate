@@ -1,5 +1,16 @@
 .DEFAULT_GOAL := help
 
+export PYTHONPATH
+export PIPENV_VENV_IN_PROJECT=1
+
+PYTHON := python3
+PIP := $(PYTHON) -m pip
+PIPENV := $(PYTHON) -m pipenv
+PYLINT := $(PYTHON) -m pylint
+BLACK := $(PYTHON) -m black
+MYPY := $(PYTHON) -m mypy
+ISORT := $(PYTHON) -m isort
+
 app_name = fast-api-app:0.0.1
 app_root = server
 tests_src = $(app_root)/tests
@@ -9,6 +20,47 @@ docker_run = docker run --rm --mount type=bind,source="$(shell pwd)/",target=/ro
 .PHONY: help
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+
+### Local commands ###
+
+.PHONY: install
+install:
+	$(PYTHON) -m pip install pip==22.3.1
+	$(PIP) install --user pipenv
+	$(PIPENV) --python 3.11
+
+.PHONY: venv
+venv:
+	$(PIPENV) shell
+	$(PIP) install -U pipenv
+
+.PHONY: install-packages
+install-packages:
+	pipenv install --dev
+
+.PHONY: lint
+lint:
+	$(PYLINT) -E $(APP_DIR) || pylint-exit $$?
+
+.PHONY: format
+format:
+	$(BLACK) $(APP_DIR)
+	$(ISORT) $(APP_DIR)
+
+.PHONY: check-typing
+check-typing:
+	$(MYPY) $(APP_DIR)
+
+.PHONY: lint-and-format
+lint-and-format: ## Lint, format and static-check
+	$(PYLINT) -E $(APP_DIR) || pylint-exit $$?
+	$(MYPY) $(APP_DIR)
+	$(BLACK) $(APP_DIR)
+	$(ISORT) $(APP_DIR)
+
+
+### Docker commands ###
 
 .PHONY: build-docker-image
 build-docker-image: ## Build the docker image and install python dependencies
@@ -27,11 +79,6 @@ lint: ## Lint the code
 .PHONY: test
 test: ## Run tests
 	$(docker_run) pipenv run test
-
-.PHONY: ingest-data
-ingest-data: fetch-data ## Invoke the ingestion process
-	$(docker_run) pipenv run python src/ingest.py uncommitted/votes.jsonl
-
 
 # Consider using test-dev or test-deploy instead
 .PHONY: testcov

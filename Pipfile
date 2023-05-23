@@ -21,7 +21,6 @@ python_version = "3.11"
 tidy = "scripts/tidy.sh"
 lint = "scripts/lint.sh"
 test = "pytest --cov=server"
-coverage = ""
 
 [pipenv]
 allow_prereleases = true
