@@ -1,0 +1,27 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+
+[dev-packages]
+mypy = "*"
+pytest = "*"
+black = "*"
+isort = "*"
+pytest-cov = "*"
+pylint = "*"
+precommit = "*"
+
+[requires]
+python_version = "3.11"
+
+[scripts]
+tidy = "scripts/tidy.sh"
+lint = "scripts/lint.sh"
+test = "pytest --cov=server"
+coverage = ""
+
+[pipenv]
+allow_prereleases = true
