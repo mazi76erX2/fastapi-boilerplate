@@ -6,10 +6,10 @@ export PIPENV_VENV_IN_PROJECT=1
 PYTHON := python3
 PIP := $(PYTHON) -m pip
 PIPENV := $(PYTHON) -m pipenv
-PYLINT := $(PYTHON) -m pylint
-BLACK := $(PYTHON) -m black
-MYPY := $(PYTHON) -m mypy
-ISORT := $(PYTHON) -m isort
+PYLINT := $(PIPENV) run pylint
+BLACK := $(PIPENV) run black
+MYPY := $(PIPENV) run mypy
+ISORT := $(PIPENV) run isort
 
 app_name = fast-api-app:0.0.1
 app_root = server
@@ -32,8 +32,8 @@ install:
 
 .PHONY: venv
 venv:
-	$(PIPENV) shell
 	$(PIP) install -U pipenv
+	$(PIPENV) shell
 
 .PHONY: install-packages
 install-packages:
