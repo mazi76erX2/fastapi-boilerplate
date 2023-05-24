@@ -59,6 +59,9 @@ lint-and-format: ## Lint, format and static-check
 	$(BLACK) $(APP_DIR)
 	$(ISORT) $(APP_DIR)
 
+.PHONY: run
+run: ## Run FastAPI app
+	$(PYTHON) $(APP_DIR)/main.py
 
 ### Docker commands ###
 

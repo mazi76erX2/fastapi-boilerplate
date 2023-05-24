@@ -4,6 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+fastapi = "*"
+uvicorn = "*"
 
 [dev-packages]
 mypy = "*"
@@ -12,7 +14,7 @@ black = "*"
 isort = "*"
 pytest-cov = "*"
 pylint = "*"
-precommit = "*"
+pre-commit = "*"
 
 [requires]
 python_version = "3.11"
