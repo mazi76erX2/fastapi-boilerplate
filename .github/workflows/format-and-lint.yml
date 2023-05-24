@@ -12,7 +12,8 @@ jobs:
           python-version: 3.11
       - run: pip install --upgrade pip
       - run: pip install pipenv
-      - run: pipenv install --dev
-      - run: black --diff --check $(git ls-files '*.py')
-      - run: pylint --disable=all --enable=unused-import $(git ls-files '*.py')
-      - run: mypy --strict $(git ls-files '*.py')
+      - run: pipenv install
+      - run: pipenv shell
+      - run: python black --diff --check $(git ls-files '*.py')
+      - run: python pylint --disable=all --enable=unused-import $(git ls-files '*.py')
+      - run: python mypy --strict $(git ls-files '*.py')
