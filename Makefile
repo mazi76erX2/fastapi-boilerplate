@@ -14,7 +14,7 @@ ISORT := $(PIPENV) run isort
 app_name = fast-api-app:0.0.1
 app_root = server
 tests_src = $(app_root)/tests
-docker_run = docker run --rm --mount type=bind,source="$(shell pwd)/",target=/root/ $(app_name)
+sudo docker_run = docker run --rm --mount type=bind,source="$(shell pwd)/",target=/root/ $(app_name)
 
 
 .PHONY: help
@@ -27,6 +27,7 @@ help: ## Show available targets
 .PHONY: install
 install:
 	$(PYTHON) -m pip install pip==22.3.1
+	$(PIP) install --upgrade pip
 	$(PIP) install --user pipenv
 	$(PIPENV) --python 3.11
 
@@ -39,12 +40,12 @@ venv:
 install-packages:
 	pipenv install --dev
 
-.PHONY: lint
-lint:
+.PHONY: lint-local
+lint-local:
 	$(PYLINT) -E $(APP_DIR) || pylint-exit $$?
 
-.PHONY: format
-format:
+.PHONY: format-local
+format-local:
 	$(BLACK) $(APP_DIR)
 	$(ISORT) $(APP_DIR)
 
@@ -67,7 +68,7 @@ run: ## Run FastAPI app
 
 .PHONY: build-docker-image
 build-docker-image: ## Build the docker image and install python dependencies
-	docker build --no-cache -t $(app_name) .
+	sudo docker build --no-cache -t $(app_name) .
 	$(docker_run) pipenv install --dev
 	$(docker_run) pre-commit install
 
