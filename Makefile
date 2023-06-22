@@ -72,6 +72,27 @@ build-docker-image: ## Build the docker image and install python dependencies
 	$(docker_run) pipenv install --dev
 	$(docker_run) pre-commit install
 
+.PHONY: docker-compose-up
+docker-compose-up: ## Run the docker-compose up
+	docker-compose --env-file .env up -d
+
+.PHONY: docker-compose-down
+docker-compose-up: ## Run the docker-compose down
+	docker-compose down -v
+
+.PHONY: docker-restart
+docker-compose-up: ## Run the docker-compose restart
+	docker-compose down -v
+	docker-compose --env-file .env up -d
+
+.PHONY: docker-compose-up-prod
+docker-compose-up: ## Run the docker-compose up on production
+	docker-compose --env-file .env up -f docker-compose.prod.yml up -d --build
+
+.PHONY: create-traefik-user
+format:
+	echo $(htpasswd -nb testuser password) | sed -e s/\\$/\\$\\$/g
+
 .PHONY: format
 format: ## Format code
 	$(docker_run) pipenv run format
