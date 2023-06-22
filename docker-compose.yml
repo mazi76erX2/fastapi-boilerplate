@@ -1,0 +1,20 @@
+version: '3.11'
+
+services:
+  web:
+    build: .
+    command: uvicorn server.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - 8000:8000
+    environment:
+      - TZ=Africa/Johannesburg
+
+    volumes:
+      - .:/app
+
+    networks:
+      - default
+
+networks:
+  default:
+    external: true
