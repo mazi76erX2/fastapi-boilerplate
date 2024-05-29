@@ -16,11 +16,11 @@ class RedisCache:
         self.url = url
         self.redis: Optional[redis.Redis] = None
 
-    async def connect(self):
+    async def connect(self) -> None:
         """Connect to Redis"""
         self.redis = await redis.from_url(self.url, encoding="utf-8")
 
-    async def close(self):
+    async def close(self) -> None:
         """Close the Redis connection"""
         if self.redis:
             await self.redis.close()
@@ -31,12 +31,12 @@ class RedisCache:
             return await self.redis.get(key)
         return None
 
-    async def set(self, key: str, value: str, expire: int = 3600):
+    async def set(self, key: str, value: str, expire: int = 3600) -> None:
         """Set value in Redis cache"""
         if self.redis:
             await self.redis.set(key, value, ex=expire)
 
-    async def delete(self, key: str):
+    async def delete(self, key: str) -> None:
         """Delete value from Redis cache"""
         if self.redis:
             await self.redis.delete(key)
