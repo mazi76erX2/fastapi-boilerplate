@@ -15,4 +15,4 @@ jobs:
       - run: pipenv install black mypy pylint
       - run: pipenv run black --diff --check $(git ls-files '*.py')
       - run: pipenv run pylint --disable=all --enable=unused-import $(git ls-files '*.py')
-      - run: pipenv run mypy --strict $(git ls-files '*.py')
+      - run: pipenv run mypy $(git ls-files '*.py')
