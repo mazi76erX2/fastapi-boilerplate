@@ -8,6 +8,7 @@ from typing import Any, Optional, cast
 import redis.asyncio as redis
 from config import REDIS_URL
 
+
 class RedisCache:
     """Redis cache class"""
 
