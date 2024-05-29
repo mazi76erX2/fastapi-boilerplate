@@ -19,7 +19,7 @@ DATABASE_URL = os.getenv(
 LOGGING_FORMAT = "%(levelname)s: %(name)s: %(message)s"
 
 
-def configure_logging():
+def configure_logging() -> None:
     """Configures logging for the application"""
     logging.basicConfig(level=logging.INFO, format=LOGGING_FORMAT)
     fastapi_logger.setLevel(logging.INFO)

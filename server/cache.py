@@ -3,40 +3,42 @@ Description: This file contains the RedisCache class which is used to
 interact with the Redis cache.
 """
 
-from typing import Optional
+from typing import Any, Optional, cast
 
-import aioredis
-
+import redis.asyncio as redis
 from config import REDIS_URL
-
 
 class RedisCache:
     """Redis cache class"""
 
     def __init__(self, url: str):
         self.url = url
-        self.redis = None
+        self.redis: Optional[redis.Redis] = None
 
     async def connect(self):
         """Connect to Redis"""
-        self.redis = await aioredis.create_redis_pool(self.url, encoding="utf-8")
+        self.redis = await redis.from_url(self.url, encoding="utf-8")
 
     async def close(self):
         """Close the Redis connection"""
-        self.redis.close()
-        await self.redis.wait_closed()
+        if self.redis:
+            await self.redis.close()
 
     async def get(self, key: str) -> Optional[str]:
         """Get value from Redis cache"""
-        return await self.redis.get(key)
+        if self.redis:
+            return await self.redis.get(key)
+        return None
 
     async def set(self, key: str, value: str, expire: int = 3600):
         """Set value in Redis cache"""
-        await self.redis.set(key, value, expire=expire)
+        if self.redis:
+            await self.redis.set(key, value, ex=expire)
 
     async def delete(self, key: str):
         """Delete value from Redis cache"""
-        await self.redis.delete(key)
+        if self.redis:
+            await self.redis.delete(key)
 
 
 redis_cache = RedisCache(REDIS_URL)
