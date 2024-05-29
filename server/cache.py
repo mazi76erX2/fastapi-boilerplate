@@ -2,6 +2,7 @@
 Description: This file contains the RedisCache class which is used to
 interact with the Redis cache.
 """
+
 from typing import Optional
 
 import aioredis
@@ -18,7 +19,7 @@ class RedisCache:
 
     async def connect(self):
         """Connect to Redis"""
-        self.redis = await aioredis.create_redis_pool(self.url, encoding="utf-8", decode_responses=True)
+        self.redis = await aioredis.create_redis_pool(self.url, encoding="utf-8")
 
     async def close(self):
         """Close the Redis connection"""
