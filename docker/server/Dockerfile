@@ -1,20 +1,29 @@
-# pull the official docker image
-FROM python:3.11.4-slim
+# Use a slim Python 3.12 base image
+FROM python:3.12.3-slim
 
-# set work directory
-WORKDIR /app
-
-# set env variables
+# Set environment varibles
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# install dependencies
-COPY Pipfile.lock .
-COPY Pipfile .
-RUN pip install --upgrade pip
-RUN pip install pipenv
-RUN pipenv install --system --deploy
-RUN pipenv install --dev
+# Set working directory
+WORKDIR /server
 
-# copy project
-COPY . /server/
+# Install system dependencies
+RUN apt-get update
+RUN apt-get install libpq-dev -y
+
+# Install Pipenv
+RUN python3 -m ensurepip --upgrade
+RUN pip install pipenv
+
+# Copy Pipenv files and lock file (if using)
+COPY Pipfile Pipfile.lock ./
+
+# Install dependencies using Pipenv
+RUN pipenv install --system --dev
+
+# Copy your application code
+COPY . .
+
+# Set the entrypoint command
+EXPOSE 8000

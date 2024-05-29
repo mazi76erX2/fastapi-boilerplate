@@ -1,32 +1,86 @@
-version: '3.11'
-
 services:
-  web:
+  backend:
+    restart: always
     build:
       context: .
-      dockerfile: docker/server/Dockerfile.prod
-    expose:
-      - 80
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.fastapi.rule=Host(`${DOMAIN}`)"
-      - "traefik.http.routers.fastapi.tls=true"
-      - "traefik.http.routers.fastapi.tls.certresolver=letsencrypt"
-  traefik:
-    build:
-      context: .
-      dockerfile: docker/traefik/Dockerfile.traefik
+      dockerfile: docker/server/Dockerfile
+    command: bash -c "alembic upgrade head &&
+      python -m gunicorn main:app
+      --chdir /server
+      --bind 0.0.0.0:8000
+      -k uvicorn.workers.UvicornWorker
     ports:
-      - 80:80
-      - 443:443
+      - 8000:8000
+    expose:
+      - 8000
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./traefik-public-certificates:/certificates"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`${DASHBOARD_DOMAIN}`) && (PathPrefix(`/`)"
-      - "traefik.http.routers.dashboard.tls=true"
-      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.middlewares=auth"
-      - "traefik.http.middlewares.auth.basicauth.users=${USERNAME}:${USERNAME_PASSWORD}"
+      - ./:/app:rw
+    depends_on:
+      - db
+      - redis
+    networks:
+      - backend
+    env_file:
+      - ./.env
+  db:
+    image: postgres:16-bullseye
+    restart: always
+    environment:
+      - POSTGRES_USER=${DATABASE_USERNAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    ports:
+      - 5432:5432
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - backend
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=pgadmin4@pgadmin.org
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+  redis:
+    restart: unless-stopped
+    image: redis:7.2.4-alpine
+    expose:
+      - 6379
+    networks:
+      - backend
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://backend:8000
+  nginx:
+    build: ./docker/nginx
+    restart: unless-stopped
+    ports:
+      - 1337:80
+    depends_on:
+      - backend
+    volumes:
+      - static_volume:/app/nlp_sentiment_analysis/staticfiles
+    networks:
+      - backend
+
+volumes:
+  db: {}
+
+networks:
+  backend:
+    # Use a custom driver which takes special options
+    driver: bridge

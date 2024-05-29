@@ -1,13 +1,29 @@
-# pull the official docker image
-FROM tiangolo/uvicorn-gunicorn:python3.11-slim
+# Use a slim Python 3.12 base image
+FROM python:3.12.3-slim
 
-# install dependencies
-COPY Pipfile.lock .
-COPY Pipfile .
-RUN pip install --upgrade pip
+# Set environment varibles
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Set working directory
+WORKDIR /server
+
+# Install system dependencies
+RUN apt-get update
+RUN apt-get install libpq-dev -y
+
+# Install Pipenv
+RUN python3 -m ensurepip --upgrade
 RUN pip install pipenv
-RUN pipenv install --system --deploy
-RUN pipenv install --dev
 
-# copy project
-COPY . /server/
+# Copy Pipenv files and lock file (if using)
+COPY Pipfile Pipfile.lock ./
+
+# Install dependencies using Pipenv
+RUN pipenv install --system --dev
+
+# Copy your application code
+COPY . .
+
+# Set the entrypoint command
+EXPOSE 8000
