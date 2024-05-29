@@ -3,7 +3,7 @@ Description: This file contains the RedisCache class which is used to
 interact with the Redis cache.
 """
 
-from typing import Any, Optional, cast
+from typing import Optional
 
 import redis.asyncio as redis
 from config import REDIS_URL
