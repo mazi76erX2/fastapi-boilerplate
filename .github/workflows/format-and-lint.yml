@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.11
+          python-version: 3.12
       - run: pip install --upgrade pip
       - run: pip install pipenv
       - run: pipenv install black mypy pylint
